@@ -272,6 +272,13 @@ namespace PassthroughCameraSamples
             return CameraEyeToCameraIdMap.Count == 2;
         }
 
+        internal static bool IsPassthroughEnabled()
+        {
+            return OVRManager.IsInsightPassthroughSupported() &&
+                OVRManager.IsInsightPassthroughInitialized() &&
+                OVRManager.instance.isInsightPassthroughEnabled;
+        }
+
         private static string[] GetCameraIdList()
         {
             return s_cameraManager.Call<string[]>("getCameraIdList");
