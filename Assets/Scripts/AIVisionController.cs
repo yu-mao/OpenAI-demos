@@ -1,37 +1,30 @@
-using System;
+using System.Collections;
+using Oculus.Interaction.Input;
 using PassthroughCameraSamples;
 using TMPro;
 using UnityEngine;
+using Utilities.Extensions;
 
 public class AIVisionController : MonoBehaviour
 {
     [Header("User Input")]
     [SerializeField] private WebCamTextureManager pcaManager;
-    // [SerializeField] private Texture2D usersViewImage;
+
+    [SerializeField] private Hand handWithPinchToTakePhoto;
     
     [Header("AI Output")]
     [SerializeField] private AIClient openAIClient;
     [SerializeField] private TMP_InputField aiResponseTextFieldInUI;
-    [SerializeField] private TMP_InputField aiResponseTextFieldInView;
+    [SerializeField] private TextMeshProUGUI aiResponseTextFieldInView;
     [SerializeField] private TTSController ttsController;
+
+    private bool aiCanSeeScene = false;
     
     public void AskAI()
     {
         ttsController.Stop();
         Texture2D usersViewImage = GetUsersViewImage();
         openAIClient.GetAIExplanationOnImage(usersViewImage);
-    }
-
-    private void OnEnable()
-    {
-        openAIClient.OnRealTimeResponding += DisplayRealTimeAIResponse;
-        openAIClient.OnResponded += SpeakResponse;
-    }
-
-    private void OnDisable()
-    {
-        openAIClient.OnRealTimeResponding -= DisplayRealTimeAIResponse;
-        openAIClient.OnResponded -= SpeakResponse;
     }
 
     private Texture2D GetUsersViewImage()
@@ -49,10 +42,41 @@ public class AIVisionController : MonoBehaviour
     private void DisplayRealTimeAIResponse(string aiResponse)
     {
         aiResponseTextFieldInUI.text = aiResponse;
+        aiResponseTextFieldInView.text = aiResponse;
     }
     
     private void SpeakResponse(string aiResponse)
     {
         ttsController.Speak(aiResponse);
+        aiCanSeeScene = true;
+    }
+    
+    
+    private void OnEnable()
+    {
+        openAIClient.OnRealTimeResponding += DisplayRealTimeAIResponse;
+        openAIClient.OnResponded += SpeakResponse;
+        aiCanSeeScene = true;
+        aiResponseTextFieldInView.SetActive(true);
+    }
+
+    private void OnDisable()
+    {
+        openAIClient.OnRealTimeResponding -= DisplayRealTimeAIResponse;
+        openAIClient.OnResponded -= SpeakResponse;
+        aiCanSeeScene = false;
+        aiResponseTextFieldInView.SetActive(false);
+
+    }
+
+    private void Update()
+    {
+        if (aiCanSeeScene && handWithPinchToTakePhoto.GetFingerIsPinching(HandFinger.Index))
+        {
+            AskAI();
+            aiCanSeeScene = false;
+            aiResponseTextFieldInUI.text = "... ...";
+            aiResponseTextFieldInView.text = "... ...";
+        }
     }
 }

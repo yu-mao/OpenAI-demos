@@ -39,7 +39,7 @@ public class AIClient : MonoBehaviour
 
         conversation.AppendMessage(new Message(Role.User, new List<Content>
         {
-            "What's in this image?",
+            "Can you explain what's in this image using max 20 words?",
             imageToAnalyze
         }));
         
