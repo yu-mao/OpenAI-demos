@@ -26,8 +26,26 @@ public class AIClient : MonoBehaviour
     
     public void GetAIChatResponseWithContext(string currentUserInputText)
     {
+        aiResponse.Clear();
+
         conversation.AppendMessage(new Message(Role.User, currentUserInputText));
-        AsyncGetAIChatResponseWithContext();
+        var request = new ChatRequest(conversation.Messages, tools: assistantTools, model: Model.GPT4o);
+        AsyncGetAIResponse(request);    
+    }
+
+    public void GetAIExplanationOnImage(Texture2D imageToAnalyze)
+    {
+        aiResponse.Clear();
+
+        conversation.AppendMessage(new Message(Role.User, new List<Content>
+        {
+            "What's in this image?",
+            imageToAnalyze
+        }));
+        
+        var request = new ChatRequest(conversation.Messages, tools: assistantTools, model: Model.GPT4o);
+        AsyncGetAIResponse(request);
+        
     }
     
     private void Awake()
@@ -37,23 +55,12 @@ public class AIClient : MonoBehaviour
         conversation.AppendMessage(new Message(Role.System, "Use max " + maxNumOfWordsInReply.ToString() +
                                    " words in your reply please"));
         conversation.AppendMessage(new Message(Role.System, priorKnowledge));
-        
-        // TestClient();
     }
 
-    // private void TestClient()
-    // {
-    //     conversation.AppendMessage(new Message(Role.User, "Hello my friend."));
-    //     AsyncGetAIChatResponseWithContext();
-    // }
-
-    private async void AsyncGetAIChatResponseWithContext()
+    private async void AsyncGetAIResponse(ChatRequest request)
     {
-        aiResponse.Clear();
-        
         try
         {
-            var request = new ChatRequest(conversation.Messages, tools: assistantTools, model: Model.GPT4o);
             // using delta response to get real-time Open AI responses
             // use CHAT endpoint as it's faster, simpler, and more flexible compared to ASSISTANT endpoint; 
             // but CHAT endpoint has No built-in memory or persistence; you'll need to manage context.
@@ -80,5 +87,10 @@ public class AIClient : MonoBehaviour
                     break;
             }
         }
+    }
+
+    private async void AsyncGetPCAExplanation()
+    {
+        
     }
 }
