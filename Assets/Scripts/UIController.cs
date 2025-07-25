@@ -2,15 +2,36 @@ using UnityEngine;
 
 public class UIController : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    [SerializeField] private GameObject aiTalk;
+    [SerializeField] private GameObject aiVision;
+    [SerializeField] private GameObject aiAction;
+    public void EnableAiChat(bool isEnabled)
     {
-        
+        if (isEnabled)
+        {
+            aiTalk.SetActive(true);
+            aiVision.SetActive(false);
+            aiAction.SetActive(false);
+        }
     }
 
-    // Update is called once per frame
-    void Update()
+    public void EnableAiVision(bool isEnabled)
     {
-        
+        if (isEnabled)
+        {
+            aiTalk.SetActive(false);
+            aiVision.SetActive(true);
+            aiAction.SetActive(false);
+        }
+    }
+
+    public void EnableAiAction(bool isEnabled)
+    {
+        if (isEnabled)
+        {
+            aiTalk .SetActive(false);
+            aiVision.SetActive(false);
+            aiAction.SetActive(true);
+        }
     }
 }
