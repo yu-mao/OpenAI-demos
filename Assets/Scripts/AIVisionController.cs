@@ -1,11 +1,13 @@
 using System;
+using PassthroughCameraSamples;
 using TMPro;
 using UnityEngine;
 
 public class AIVisionController : MonoBehaviour
 {
     [Header("User Input")]
-    [SerializeField] private Texture2D usersViewImage;
+    [SerializeField] private WebCamTextureManager pcaManager;
+    // [SerializeField] private Texture2D usersViewImage;
     
     [Header("AI Output")]
     [SerializeField] private AIClient openAIClient;
@@ -16,12 +18,8 @@ public class AIVisionController : MonoBehaviour
     public void AskAI()
     {
         ttsController.Stop();
+        Texture2D usersViewImage = GetUsersViewImage();
         openAIClient.GetAIExplanationOnImage(usersViewImage);
-    }
-
-    private void Start()
-    {
-        AskAI();
     }
 
     private void OnEnable()
@@ -36,6 +34,18 @@ public class AIVisionController : MonoBehaviour
         openAIClient.OnResponded -= SpeakResponse;
     }
 
+    private Texture2D GetUsersViewImage()
+    {
+        Texture2D usersViewImage = new Texture2D(pcaManager.WebCamTexture.width, pcaManager.WebCamTexture.height);
+        
+        Color32[] pixels = new Color32[usersViewImage.width * usersViewImage.height];
+        pcaManager.WebCamTexture.GetPixels32(pixels);
+        usersViewImage.SetPixels32(pixels);
+        usersViewImage.Apply();
+
+        return usersViewImage;
+    }
+    
     private void DisplayRealTimeAIResponse(string aiResponse)
     {
         aiResponseTextFieldInUI.text = aiResponse;
